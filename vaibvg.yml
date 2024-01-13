@@ -1,0 +1,166 @@
+openapi: 3.1.0
+info:
+  title: KnowledgeForge API
+  description: REST API for the KnowledgeForge website
+  version: 'v1.0'
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /login:
+    post:
+      summary: Instructor Login
+      description: Authenticate an instructor and obtain an access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address of the instructor.
+                  example: john.doe@example.com
+                password:
+                  type: string
+                  format: password
+                  description: The password for authentication.
+                  example: password123
+      responses:
+        '200':
+          description: Successful login. Returns an access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_200'
+        '401':
+          description: Unauthorized. Invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_401'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_500'
+
+  /instructors:
+    get:
+      summary: Get Instructor Profile
+      description: Retrieve the profile of a specific instructor.
+      parameters:
+        - name: instructor_id
+          in: query
+          description: The unique ID of the instructor whose profile you want to retrieve.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with the instructor's profile.
+          content:
+            application/json:
+              example:
+                instructor_id: 123
+                name: John Doe
+                email: john.doe@example.com
+                profile_picture: http://google.com/instructor.jpg
+                contactnum: (857)-589-8745
+                university: Northeastern University
+                access_token: -askjdbkawbdkajwbi9102474-
+                courses:
+                  - course_id: 456
+                    title: Machine Learning
+                    description: Course focuses on Machine learning algorithms and optimization
+                    creation_time: 11/14/2020
+                    category: Engineering
+                    sub_category: Data Science
+                    thumbnail: http://google.com/thumb.jpg
+                    fees: $1801
+                    num_of_mods: 6
+                  - course_id: 784
+                    title: Object Oriented Programming
+                    description: Course focuses on Object Oriented Programming and Design patterns
+                    creation_time: 05/25/2020
+                    category: Engineering
+                    sub_category: Software Engineering
+                    thumbnail: http://google.com/thumb.jpg
+                    fees: $1801
+                    num_of_mods: 6
+        '401':
+          description: Unauthorized. The user is not authenticated to access this resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_401'
+        '404':
+          description: Instructor not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_404'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_500'
+
+components:
+  schemas:
+    Error_200:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: Successful login. Returns an access token.
+          examples:
+            - -askjdbkawbdkajwbi9102474-
+        message:
+          type: string
+          description: Successful login
+          examples:
+            - Welcome, {UserName}
+    Error_401:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+          examples:
+            - AuthenticationError
+        message:
+          type: string
+          description: Error message
+          examples:
+            - User is not authenticated
+    Error_404:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+          examples:
+            - NotFoundError
+        message:
+          type: string
+          description: Error message
+          examples:
+            - Instructor not found.
+    Error_500:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+          examples:
+            - InternalServerError
+        message:
+          type: string
+          description: Error message
+          examples:
+            - 500 Internal Server Error

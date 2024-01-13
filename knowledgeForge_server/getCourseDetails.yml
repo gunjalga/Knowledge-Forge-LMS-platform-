@@ -1,0 +1,118 @@
+openapi: 3.1.0
+info:
+  title: KnowledgeForge API
+  description: REST API for knowledgeforge website
+  version: 'v1.0'
+servers:
+  - url: http://localhost:8080
+paths:
+  /courseDetails:
+    get:
+      operationId: get-course-details
+      description: get course details
+      parameters: 
+        - name: id
+          in: query
+          required: true
+          example: 113
+          schema: 
+            type: string
+      responses: 
+        "200":
+          description: Successful search
+          content: 
+            application/json: 
+              schema: 
+                type: object
+                $ref: "#/components/schemas/CourseDetails"
+        '404':
+          description: Page not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error500'
+components: 
+  schemas: 
+    CourseDetails:
+      type: object
+      properties: 
+        id:
+          type: string
+          examples:
+            - 1234
+        title:
+          type: string
+          examples:
+            - Web Design
+        instructor:
+          type: string
+          examples:
+            - Gaurav Gunjal
+        avg_rating:
+          type: number
+          examples:
+            - 4.5
+        created_timing:
+          type: string
+          examples:
+            - "2023-07-11T09:30:16Z"
+        description:
+          type: string
+          examples:
+            - "<p>Take this Javascript training course and start learning Javascript today.</p>"
+        image:
+          type: string
+          examples:
+            - "https://firebase.com/bucket-1234/khfg-1234"
+        is_paid:
+          type: boolean
+          examples:
+            - true
+        price:
+          type: number
+          examples:
+            - 29
+        num_lectures:
+          type: integer
+          examples:
+            - 5
+        num_reviews:
+          type: integer
+          examples: 
+            - 7
+        primary_category:
+          type: string
+          examples: 
+            - "Engineering"
+    Error404:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          examples:
+            - "NotFoundError"
+        message:
+          type: string
+          description: Error message
+          examples:
+            - "Instructor not found."
+    Error500:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          examples:
+            - "InternalServerError"
+        message:
+          type: string
+          description: Error message
+          examples:
+            - "500 Internal Server Error"

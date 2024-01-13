@@ -1,0 +1,362 @@
+openapi: 3.1.0
+info:
+  title: KnowledgeForge API
+  description: REST API for the KnowledgeForge website
+  version: 'v1.0'
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /login:
+    post:
+      summary: Instructor Login
+      description: Authenticate an instructor and obtain an access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address of the instructor.
+                  example: john.doe@example.com
+                password:
+                  type: string
+                  format: password
+                  description: The password for authentication.
+                  example: password123
+      responses:
+        '200':
+          description: Successful login. Returns an access token.
+          content:
+            application/json:
+              example: Success
+        '401':
+          description: Unauthorized. Invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_401'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_500'
+
+  /instructors:
+    get:
+      summary: Get Instructor Profile
+      description: Retrieve the profile of a specific instructor.
+      parameters:
+        - name: instructor_id
+          in: query
+          description: The unique ID of the instructor whose profile you want to retrieve.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with the instructor's profile.
+          content:
+            application/json:
+              example:
+                instructor_id: 123
+                name: John Doe
+                email: john.doe@example.com
+                profile_picture: http://google.com/instructor.jpg
+                contactnum: (857)-589-8745
+                university: Northeastern University
+                access_token: -askjdbkawbdkajwbi9102474-
+                courses:
+                  - course_id: 456
+                    title: Machine Learning
+                    description: Course focuses on Machine learning algorithms and optimization
+                    creation_time: 2020-01-01T12:00:00Z
+                    category: Engineering
+                    sub_category: Data Science
+                    thumbnail: http://google.com/thumb.jpg
+                    fees: $1801
+                    num_of_mods: 6
+                  - course_id: 784
+                    title: Object Oriented Programming
+                    description: Course focuses on Object Oriented Programming and Design patterns
+                    creation_time: 2020-01-01T12:00:00Z
+                    category: Engineering
+                    sub_category: Software Engineering
+                    thumbnail: http://google.com/thumb.jpg
+                    fees: $1801
+                    num_of_mods: 4
+        '401':
+          description: Unauthorized. The user is not authenticated to access this resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_401'
+        '404':
+          description: Instructor not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_404'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_500'
+
+  /courses:
+    get:
+      summary: Get All Courses
+      description: Retrieve a list of all courses available in the LMS.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                courses:
+                  - id: 1
+                    title: Introduction to Programming
+                    instructor: John Doe
+                    duration: 8 weeks
+                    fees: 99.99
+                    category: Programming
+                    subCategory: Web Development
+                    thumbnail: https://example.com/thumbnail.jpg
+                    description: A comprehensive introduction to programming concepts.
+                    noOfModules: 10
+                    creationTime: "2023-01-01T12:00:00Z"
+                  - id: 2
+                    title: Web Development Basics
+                    instructor: Jane Smith
+                    duration: 10 weeks
+                    fees: 129.99
+                    category: Programming
+                    subCategory: Web Development
+                    thumbnail: https://example.com/thumbnail2.jpg
+                    description: Fundamentals of web development and design.
+                    noOfModules: 12
+                    creationTime: "2023-01-15T10:30:00Z"
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              example:
+                error: Course not found
+                message: Not Found Error
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_500'
+
+  /courseDetails:
+    get:
+      operationId: get-course-details
+      description: Get course details
+      parameters:
+        - name: id
+          in: query
+          required: true
+          example: 113
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful search
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDetails"
+        '404':
+          description: Page not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_404'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_500'
+
+  /user/profile:
+    get:
+      summary: Get user profile by access token
+      description: Retrieves user profile information using an access token
+      parameters:
+        - name: access_token
+          in: query
+          description: Access token for authentication
+          required: true
+          schema:
+            type: string
+        - name: user_id
+          in: query
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                  contact_number:
+                    type: string
+                  profile_picture:
+                    type: string
+                    format: uri
+                  email_id:
+                    type: string
+                    format: email
+                  user_name:
+                    type: string
+                example:
+                  user_id: 123
+                  contact_number: "+1234567890"
+                  profile_picture: "https://example.com/profile.jpg"
+                  email_id: "user@example.com"
+                  user_name: "John Doe"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_401'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_404'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_500'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_400'
+
+components:
+  schemas:
+    CourseDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          examples:
+            - 1234
+        title:
+          type: string
+          examples:
+            - Web Design
+        instructor:
+          type: string
+          examples:
+            - Gaurav Gunjal
+        avg_rating:
+          type: number
+          examples:
+            - 4.5
+        created_timing:
+          type: string
+          examples:
+            - "2023-07-11T09:30:16Z"
+        description:
+          type: string
+          examples:
+            - "<p>Take this Javascript training course and start learning Javascript today.</p>"
+        image:
+          type: string
+          examples:
+            - "https://firebase.com/bucket-1234/khfg-1234"
+        is_paid:
+          type: boolean
+          examples:
+            - true
+        price:
+          type: number
+          examples:
+            - 29
+        num_lectures:
+          type: integer
+          examples:
+            - 5
+        num_reviews:
+          type: integer
+          examples:
+            - 7
+        primary_category:
+          type: string
+          examples:
+            - "Engineering"
+    Error_401:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+          examples:
+            - AuthenticationError
+        message:
+          type: string
+          description: Error message
+          examples:
+            - User is not authenticated
+    Error_404:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+          examples:
+            - NotFoundError
+        message:
+          type: string
+          description: Error message
+          examples:
+            - Requested data not found.
+    Error_500:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+          examples:
+            - InternalServerError
+        message:
+          type: string
+          description: Error message
+          examples:
+            - 500 Internal Server Error
+    Error_400:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+          examples:
+            - BadRequestError
+        message:
+          type: string
+          description: Error message
+          examples:
+            - Invalid request
